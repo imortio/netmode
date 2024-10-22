@@ -99,3 +99,7 @@ Since this script is purposed to help on a simple task which may be oftenly perf
 - Choose your branch and submit the pull request.
 
 4. Report Issues: If you find any bugs or have feature requests, feel free to open an issue in the [issue tracker](https://github.com/imortio/netmode/issues).
+
+## License
+
+This project is licensed under the [Unlicense](https://unlicense.org/). See the [LICENSE](LICENSE) file for more details.
