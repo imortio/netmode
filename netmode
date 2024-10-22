@@ -22,12 +22,12 @@ function show_help {
 	echo "	--help | -h	Show this help message"
 }
 
-#check su/sudo privilege
+#check for su/sudo privilege
 if [ "$EUID" -ne 0 ]; then
 	error_exit "Error: This command must be run as a root"
 fi
 
-#detect wireless autmatically (modify this if needed for specific reasons)
+#detect wireless automatically (modify this if needed for specific reasons)
 INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}' | head -n 1 )
 
 #check if any interface is found or not
@@ -43,10 +43,10 @@ managed_mode() {
 		error_exit "Error: Interface $INTERFACE does not exist."
 	fi
 	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
-	sudo iw dev "$INTERFACE" set type managed || error_exit "Failed to set $INTERFACE to managed/normal mode."
+	sudo iw dev "$INTERFACE" set type managed || error_exit "Failed to set $INTERFACE to managed mode."
 	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
 
-	echo "managed/normal mode successfuly enabled on $INTERFACE."
+	echo "Successfuly switch to managed mode on $INTERFACE."
 }
 
 #switch to monitor 
