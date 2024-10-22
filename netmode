@@ -1,0 +1,127 @@
+#!/bin/bash
+
+# error handling func
+function error_exit {
+	echo "$1" >&2
+	exit 1
+}
+
+function show_help {
+	echo "Usage monmode {man|mon|i|w|m|-h|--help}"
+	echo ""
+	echo "This script allows you to switch your wireless card interface mode between:"
+	echo "managed, monitor, IBSS (Ad-hoc), mesh, or WDS (Wireless Distribution System)."
+	echo "If no wireless interface is specified, it will attempt to detect one automatically."
+	echo "You can specify which wireless interface you want to use by modifying this script in $INTERFACE part."
+	echo "Options:"
+	echo "	man 		Set the interface to managed mode (normal operation)"
+	echo "	mon 		Set the interface to monitor mode (package sniffing)"
+	echo "	i 		Set the interface to IBSS (Ad-hoc) mode"
+	echo "	m 		Set the interface to mesh mode"
+	echo "	w 		Set the interface to WDS mode"
+	echo "	--help | -h	Show this help message"
+}
+
+#check su/sudo privilege
+if [ "$EUID" -ne 0 ]; then
+	error_exit "Error: This command must be run as a root"
+fi
+
+#detect wireless autmatically (modify this if needed for specific reasons)
+INTERFACE=$(iw dev | awk '$1=="Interface"{print $2}' | head -n 1 )
+
+#check if any interface is found or not
+if [ -z "$INTERFACE" ]; then
+	error_exit "Error: No wirelesss interface found"
+fi
+
+#switch modes using iw command
+#switch to managed
+managed_mode() {
+	echo "Switch to managed/normal mode on $INTERFACE..."
+	if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+		error_exit "Error: Interface $INTERFACE does not exist."
+	fi
+	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
+	sudo iw dev "$INTERFACE" set type managed || error_exit "Failed to set $INTERFACE to managed/normal mode."
+	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
+
+	echo "managed/normal mode successfuly enabled on $INTERFACE."
+}
+
+#switch to monitor 
+monitor_mode() {
+	echo "Switch to monitor mode on $INTERFACE..."
+	if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+		error_exit "Error: Interface $INTERFACE does not exist."
+	fi
+	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
+	sudo iw dev "$INTERFACE" set type monitor || error_exit "Failed to set $INTERFACE to monitor mode."
+	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
+
+	echo "Successfuly switch to monitor on $INTERFACE."
+}
+
+#switch to ibss 
+ibss_mode() {
+	echo "Switch to ibss mode on $INTERFACE..."
+	if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+		error_exit "Error: Interface $INTERFACE does not exist."
+	fi
+	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
+	sudo iw dev "$INTERFACE" set type ibss || error_exit "Failed to set $INTERFACE to ibss mode."
+	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
+
+	echo "Successfuly switch to ibss mode on $INTERFACE."
+}
+
+#switch to monitor 
+mesh_mode() {
+	echo "Switch to mesh mode on $INTERFACE..."
+	if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+		error_exit "Error: Interface $INTERFACE does not exist."
+	fi
+	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
+	sudo iw dev "$INTERFACE" set type mesh || error_exit "Failed to set $INTERFACE to mesh mode."
+	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
+
+	echo "Successfuly switch to mesh mode on $INTERFACE."
+}
+
+#switch to monitor 
+wds_mode() {
+	echo "Switch to wds mode on $INTERFACE..."
+	if ! ip link show "$INTERFACE" > /dev/null 2>&1; then
+		error_exit "Error: Interface $INTERFACE does not exist."
+	fi
+	sudo ip link set "$INTERFACE" down || error_exit "Failed to bring down $INTERFACE."
+	sudo iw dev "$INTERFACE" set type wds || error_exit "Failed to set $INTERFACE to wds mode."
+	sudo ip link set "$INTERFACE" up || error_exit "Failed to bring up $INTERFACE."
+
+	echo "Successfuly switch to wds mode on $INTERFACE."
+}
+#control flow
+
+case "$1" in
+	man)
+		managed_mode
+		;;
+	mon)
+		monitor_mode
+		;;
+	i)
+		ibss_mode
+		;;
+	m)
+		mesh_mode
+		;;
+	w)
+		wds_mode
+		;;
+	--help|-h)
+		show_help
+		;;
+	*)
+		error_exit "Invalid argument. -h or --help for usage information."
+		;;
+esac
